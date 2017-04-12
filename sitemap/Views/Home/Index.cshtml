@@ -1,0 +1,33 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<p>https://www.ukad-group.com/</p>
+<form method="post" action="">
+    <label> enter URL </label>
+    <input type="text" name="urlForProcessing" value=""><br><br>
+    <button id="process-url-button">process</button>
+</form>
+
+@*<div id="container" style="min-width: 300px; height: 400px; margin: 0 auto"></div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>url</th>
+            <th>time ms</th>
+        </tr>
+    </thead>
+    <tbody data-bind="foreach: urlData">
+        <tr data-bind="foreach: $data">
+            <td data-bind="text: $data"></td>
+        </tr>
+     </tbody>
+ </table>*@
+
+    @Html.Partial("UrlsRespnseTimeRepresentation")
+
+
+<script type="text/javascript">
+
+</script>

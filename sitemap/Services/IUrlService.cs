@@ -1,0 +1,20 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNet.SignalR;
+using WebSitePerformanceTester.DataAccess;
+
+namespace WebSitePerformanceTester.Services
+{
+    public interface IUrlService
+    {
+        Task addUrl(string urlToCheck, string connectionId);
+
+        //Task MasureAndSendResponseTime(IEnumerable<Uri> list,  
+        //    Domain domain , TestTime tTime, IHubContext hubContext, string connectionId);
+
+        string GetSiteMapUrl(string url);
+        string CheckUrl(string urlToCheck);
+        IEnumerable<Uri> GetUriList(string url);
+    }
+}

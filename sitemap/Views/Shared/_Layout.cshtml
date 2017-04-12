@@ -1,0 +1,304 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    @Styles.Render("~/Content/css")
+        @Scripts.Render("~/bundles/modernizr")
+    <script src="~/Scripts/knockout-3.4.2.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/boost.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+
+    @Scripts.Render("~/bundles/jquery")
+    <style>
+        body {
+            /*background-color: black;
+            color: white;*/
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                    <li>@Html.ActionLink("History", "Index", "History")</li>
+                  
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+        </footer>
+    </div>
+
+    @*@Scripts.Render("~/bundles/jquery")*@
+    @Scripts.Render("~/bundles/bootstrap")
+<script src="~/Scripts/jquery.signalR-2.2.1.min.js"></script>
+    <script src="http://knockoutjs.com/examples/resources/knockout.simpleGrid.3.0.js"></script>
+   
+    @RenderSection("scripts", required: false)
+<script>
+    function showChartAndTable() {
+        $("table.ko-grid").addClass("table table-striped");
+        $(".results-table").show("slow");
+        $("#chart").show("slow");
+    }
+    var urls = new AppViewModel();
+    ko.applyBindings(urls);
+    var connection = $.hubConnection();
+    var siteMapHubProxy = connection.createHubProxy('SiteMapHub');
+
+    siteMapHubProxy.on("results",
+        function(results) {
+            onResults(results);
+        });
+    siteMapHubProxy.on("dates",
+        function(dates) {
+            onDates(dates);
+
+        });
+    siteMapHubProxy.on("Done",
+        function () {
+            connection.stop();
+            console.log("stoped");
+            console.log(urls);
+        });
+    siteMapHubProxy.on('Item',
+        function (url, time) {
+            showChartAndTable();
+            onItem(url, time);
+        });
+
+
+        var chart = Highcharts.chart(
+            {
+                chart: {
+                    renderTo: "chart",
+                    height : 400,
+                    zoomType: 'x'
+                },
+                boost: {
+                    useGPUTranslations: true
+                },
+                title: {
+                    text: 'USD to EUR exchange rate over time'
+                },
+                subtitle: {
+                    text: document.ontouchstart === undefined
+                        ? 'Click and drag in the plot area to zoom in'
+                        : 'Pinch the chart to zoom in'
+                },
+                xAxis: {
+                    lineWidth: 0,
+                    minorGridLineWidth: 0,
+                    lineColor: 'transparent',
+
+                    labels: {
+                        enabled: false
+                    },
+                    minorTickLength: 0,
+                    tickLength: 0
+                },
+                yAxis: {
+                    title: {
+                        text: 'Response time, ms'
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                plotOptions: {
+                    area: {
+                        fillColor: {
+                            linearGradient: {
+                                x1: 0,
+                                y1: 0,
+                                x2: 0,
+                                y2: 1
+                            },
+                            stops: [
+                                [0, Highcharts.getOptions().colors[0]],
+                                [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                            ]
+                        },
+                        marker: {
+                            radius: 2
+                        },
+                        lineWidth: 1,
+                        states: {
+                            hover: {
+                                lineWidth: 1
+                            }
+                        },
+                        threshold: null
+                    }
+                },
+
+                series: [
+                    {
+                        type: 'area',
+                        name: 'Response time, ms',
+                        data: []
+                    }
+                ]
+            });
+      
+
+
+    $(document).ready(function() {
+    
+        // signalR connection event
+        //connection.start().done(function() {
+        //    console.log('connection');
+
+        //});
+
+        connection.reconnecting(function() {
+            console.log('reconnecting');
+        });
+
+        connection.stateChanged(function(change) {
+            console.log(change);
+        });
+
+        // request for GetDatesByUrl on server SiteMapHub by signalR
+        $("#List").change(function () {
+            if (connection && connection.state === $.signalR.connectionState.disconnected) {
+                connection.start().done(function () {
+                    console.log('connection');
+                    var selected = $("#List option:selected").val();
+                    if (selected.startsWith("http")) siteMapHubProxy.invoke("GetDatesByUrl", selected);
+                });
+            }
+  
+        });
+
+        // request for GetResultsForUrlByDate on server SiteMapHub by signalR
+        $("#dates").change(function() {
+            var date = $("#dates option:selected").val();
+            var url = $("#List option:selected").val();
+            siteMapHubProxy.invoke("GetResultsForUrlByDate", url, date);
+        });
+
+        $('#process-url-button').click(function(e) {
+            onProccessButtonClick(e);
+        });
+    });
+
+    function onProccessButtonClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        connection.start().done(function() {
+            console.log('connection');
+            siteMapHubProxy.invoke('processUrl', url);
+        });
+        console.log('click');
+        
+        chart.series[0].setData([]);
+        urls.clear();
+        var url = $("input[name = 'urlForProcessing']").val();
+        
+        return false;
+    }
+
+    function AppViewModel() {
+        var self = this;
+
+        self.urlData = ko.observableArray();
+
+        self.addUrl = function(url, time) {
+            self.urlData.push({ Url: url, Time: time });
+        };
+
+        self.addSort = function(url, time) {
+            
+        }
+
+        self.jumpToFirstPage = function() {
+            self.gridViewModel.currentPageIndex(0);
+        };
+
+        self.gridViewModel = new ko.simpleGrid.viewModel({
+            data: self.urlData,
+            columns: [
+                { headerText: "Url", rowText: "Url" },
+                { headerText: "Response time", rowText: "Time" }
+            ],
+            pageSize: 20
+        });
+        self.clear =  function() {
+            self.urlData([]);
+        }
+        self.min = ko.observable(Infinity);
+        self.max = ko.observable(0);
+        self.changeMin = function(val) {
+            self.min(val);
+        }
+        self.changeMax = function(val) {
+            self.max(val);
+        }
+        self.show = function() {
+            return self.urlData;
+        }
+        self.maxv = function() {
+            return self.urlData[0];
+        }
+    }
+
+    function onResults(results) {
+        showChartAndTable();
+        chart.series[0].setData(results.map(x => [x.Url, x.Times]), true, false);
+        urls.clear();
+        $.each(results,
+            function(i, item) {
+                urls.addUrl(item.Url, item.Times);
+            });
+    }
+
+    function onDates(dates) {
+        $('#dates')
+            .find('option')
+            .remove()
+            .end();
+        $('#dates').append($('<option>',
+        {
+            value: "select date",
+            text: "select date"
+        }));
+        $.each(dates,
+            function(i, item) {
+                $('#dates').append($('<option>',
+                {
+                    value: item,
+                    text: item
+                }));
+            });
+    }
+
+    function onItem(url, time) {
+        //console.log('started');
+        if (urls.min() > time) urls.changeMin(time);
+        if (urls.max() < time) urls.changeMax(time);
+        urls.addUrl(url, time);
+        chart.series[0].addPoint([url, time], true, false);
+    }
+
+</script>
+</body>
+</html>
