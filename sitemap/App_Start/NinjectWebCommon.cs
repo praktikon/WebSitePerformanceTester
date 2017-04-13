@@ -15,11 +15,13 @@ namespace WebSitePerformanceTester.App_Start
 
     using Ninject;
     using Ninject.Web.Common;
+    using Ninject.Web.WebApi;
     using WebSitePerformanceTester.DataAccess.Infrastructure;
     using Microsoft.AspNet.SignalR;
     using Microsoft.AspNet.SignalR.Hubs;
     using WebSitePerformanceTester.Hub;
     using Microsoft.AspNet.SignalR.Infrastructure;
+    using System.Web.Http;
 
     public static class NinjectWebCommon 
     {
@@ -54,6 +56,7 @@ namespace WebSitePerformanceTester.App_Start
             {
                 kernel.Bind<Func<IKernel>>().ToMethod(ctx => () => new Bootstrapper().Kernel);
                 kernel.Bind<IHttpModule>().To<HttpApplicationInitializationHttpModule>();
+            GlobalConfiguration.Configuration.DependencyResolver = new NinjectDependencyResolver(kernel);
 
                 RegisterServices(kernel);
                 return kernel;
@@ -75,7 +78,6 @@ namespace WebSitePerformanceTester.App_Start
         private static void RegisterServices(IKernel kernel)
         {
 
-           
             GlobalHost.DependencyResolver.Register(typeof(IHubActivator),
                 () => new HubActivator(kernel));
             

@@ -178,22 +178,34 @@
         });
 
         // request for GetDatesByUrl on server SiteMapHub by signalR
-        $("#List").change(function() {
-            if (connection && connection.state === $.signalR.connectionState.disconnected) {
-                connection.start().done(function() {
-                    console.log('connection');
-                    var selected = $("#List option:selected").val();
-                    if (selected.startsWith("http")) siteMapHubProxy.invoke("GetDatesByUrl", selected);
-                });
+        $("#List").change(function () {
+            var selected = $("#List option:selected").val();
+            if (selected.startsWith("http")){
+                $.get("http://localhost:60435/api/url", { Url: selected })
+                    .done(function (result) {
+                        onDates(result);
+                    })
+                    .fail(function (e) {
+                        console.log(e);
+                        }); 
             }
-
         });
 
         // request for GetResultsForUrlByDate on server SiteMapHub by signalR
         $("#dates").change(function() {
             var date = $("#dates option:selected").val();
             var url = $("#List option:selected").val();
-            siteMapHubProxy.invoke("GetResultsForUrlByDate", url, date);
+            $.get("http://localhost:60435/api/url",
+                {
+                    Url: url, 
+                    Date: date
+                })
+                .done(function (result) {
+                    onResults(result);
+                })
+                .fail(function (e) {
+                    console.log(e);
+                }); 
         });
 
         $('#process-url-button').click(function(e) {
