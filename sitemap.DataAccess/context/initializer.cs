@@ -12,18 +12,10 @@ namespace WebSitePerformanceTester.DataAccess.context
 
         protected override void Seed(SitemapDbContext context)
         {
-            var D = new Domain {MainUrl = "sdfsdfsdf"};
-            context.Domains.Add(D);
+            var dom = new Domain {MainUrl = "https://www.ukad-group.com" };
+            context.Domains.Add(dom);
             context.SaveChanges();
-            try
-            {
-                base.Seed(context);
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            base.Seed(context);
         }
     }
 }

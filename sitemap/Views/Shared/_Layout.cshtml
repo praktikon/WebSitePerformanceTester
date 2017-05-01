@@ -75,7 +75,8 @@
 
         });
     siteMapHubProxy.on("Done",
-        function() {
+        function () {
+            $(".status").html("Done");
             connection.stop();
             console.log("stoped");
             console.log(urls);
@@ -98,7 +99,7 @@
             useGPUTranslations: true
         },
         title: {
-            text: 'USD to EUR exchange rate over time'
+            text: 'Url Response Time'
         },
         subtitle: {
             text: document.ontouchstart === undefined
@@ -216,15 +217,18 @@
     function onProccessButtonClick(e) {
         e.preventDefault();
         e.stopPropagation();
+        $(".status-group").show();
         connection.start().done(function() {
             console.log('connection');
+            $(".status").html("Loading");
+            var url = $("input[name = 'urlForProcessing']").val();
             siteMapHubProxy.invoke('processUrl', url);
         });
         console.log('click');
 
         chart.series[0].setData([]);
         urls.clear();
-        var url = $("input[name = 'urlForProcessing']").val();
+        
 
         return false;
     }

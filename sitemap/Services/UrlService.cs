@@ -4,12 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using System.Web.UI;
 using System.Xml.Linq;
-using Microsoft.AspNet.SignalR.Hubs;
-using WebSitePerformanceTester.Hub;
 using WebSitePerformanceTester.DataAccess;
 using WebSitePerformanceTester.DataAccess.Repositories;
+using HtmlAgilityPack;
 
 namespace WebSitePerformanceTester.Services
 {
@@ -56,49 +54,110 @@ namespace WebSitePerformanceTester.Services
                 _handler.Domain = domain;
                 _handler.tTime = tTime;
                 _handler.ConnectionId = connectionId;
-                //await _handler.MasureAndSendResponseTime(list, _uow);
-                await MasureAndSendResponseTime(list);
+                //await _handler.MasureAndSendResponseTimeLinksFromSiteMap_Xml(list, _uow);
+                if ((list is null) || list.Any())
+                {
+                    await MasureAndSendResponseTimeLinksFromScraping(url);
+                   
+                }
+                else
+                {
+                    await MasureAndSendResponseTimeLinksFromSiteMap_Xml(list);
+                }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
+            _handler.Done();
 
         }
 
-        public async Task MasureAndSendResponseTime(IEnumerable<Uri> list)
+
+        public async Task MasureAndSendResponseTimeLinksFromScraping(string baseUrl)
+        {
+            HashSet<Uri> uries = new HashSet<Uri>();
+            var uriHashSet = new HashSet<Uri>();
+            HtmlWeb htmlDocument = new HtmlWeb();
+            uriHashSet.Add(new Uri(baseUrl));
+            while (uriHashSet.Any())
+            {
+                var tempUri = uriHashSet.LastOrDefault();
+                await ProccessUrl(tempUri);
+                uriHashSet.Remove(tempUri);
+                HtmlDocument doc = htmlDocument.Load(tempUri.ToString());
+                var nodes = doc.DocumentNode.SelectNodes("//a[@href]");
+                if (nodes is null) continue;
+                foreach (HtmlNode link in nodes)
+                {
+                    string hrefValue = link.GetAttributeValue("href", string.Empty);
+
+                    if ((hrefValue.StartsWith("/") || hrefValue.StartsWith(baseUrl))
+                        && !hrefValue.Contains("#")
+                        && !hrefValue.Contains("?")
+                        && hrefValue.Length > 1)
+                    {
+                        var baseUri = new Uri(baseUrl);
+                        var uri = new Uri(baseUri, hrefValue);
+                        if (!uries.Contains(uri))
+                        {
+                            uries.Add(uri);
+                            if (!hrefValue.StartsWith(baseUrl))
+                            {
+                                uriHashSet.Add(uri);
+
+                            }
+                            else
+                            {
+                                var uri1 = new Uri(hrefValue);
+                                uriHashSet.Add(uri1);
+                            }
+
+                        }
+
+                    }
+                }
+            }
+        }
+
+        public async Task MasureAndSendResponseTimeLinksFromSiteMap_Xml(IEnumerable<Uri> list)
         {
             foreach (var page in list)
             {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(page);
-                Stopwatch timer = new Stopwatch();
-                try
-                {
-                    timer.Start();
-                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                    {
-                        timer.Stop();
-                        long timeTaken = timer.ElapsedMilliseconds;
-                        var responseTime = new ResponseTime
-                        {
-                            Domain = _handler.Domain,
-                            TestsTime = _handler.tTime,
-                            Url = page.ToString(),
-                            TimeMs = timeTaken
-                        };
-                        _uow.ResponsesTime.Add(responseTime);
-                        await _uow.SaveChangesAsync();
-                        await _handler.SendResponseTime(page, timeTaken);
-                    }
-                }
-                catch
-                {
-                    // ignored
-                }
+                await ProccessUrl(page);
             }
-            _handler.Done();
+            //_handler.Done();
         }
 
+
+        public async Task ProccessUrl(Uri page)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(page);
+            Stopwatch timer = new Stopwatch();
+            try
+            {
+                timer.Start();
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    timer.Stop();
+                    long timeTaken = timer.ElapsedMilliseconds;
+                    var responseTime = new ResponseTime
+                    {
+                        Domain = _handler.Domain,
+                        TestsTime = _handler.tTime,
+                        Url = page.ToString(),
+                        TimeMs = timeTaken
+                    };
+                    _uow.ResponsesTime.Add(responseTime);
+                    await _uow.SaveChangesAsync();
+                    await _handler.SendResponseTime(page, timeTaken);
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+        }
 
         public string GetSiteMapUrl(string url)
         {
@@ -124,7 +183,16 @@ namespace WebSitePerformanceTester.Services
 
         public IEnumerable<Uri> GetUriList(string url)
         {
-            XDocument doc = XDocument.Load(url);
+            XDocument doc = null;
+            try
+            {
+                doc = XDocument.Load(url);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+
             List<Uri> d  = new List<Uri>();
             if (doc.Root.Name.LocalName == "sitemapindex")
             {

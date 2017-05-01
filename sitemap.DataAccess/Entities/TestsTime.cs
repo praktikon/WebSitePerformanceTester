@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WebSitePerformanceTester.DataAccess
 {
@@ -23,6 +19,6 @@ namespace WebSitePerformanceTester.DataAccess
         [Column(TypeName = "DateTime2")]
         public DateTime Date { get; set; }
 
-        public ICollection<ResponseTime> ResponsesTime { get; set; }
+        private ICollection<ResponseTime> ResponsesTime { get; set; }
     }
 }

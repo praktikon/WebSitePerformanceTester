@@ -10,7 +10,7 @@ namespace WebSitePerformanceTester.Services
     {
         Task addUrl(string urlToCheck, string connectionId);
 
-        //Task MasureAndSendResponseTime(IEnumerable<Uri> list,  
+        //Task MasureAndSendResponseTimeLinksFromSiteMap_Xml(IEnumerable<Uri> list,  
         //    Domain domain , TestTime tTime, IHubContext hubContext, string connectionId);
 
         string GetSiteMapUrl(string url);
