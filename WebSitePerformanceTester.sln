@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26206.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSitePerformanceTester", "sitemap\WebSitePerformanceTester.csproj", "{B5A0B4E1-4DDA-4427-8219-F5F0952A52AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSitePerformanceTester", "WebSitePerformanceTester\WebSitePerformanceTester.csproj", "{B5A0B4E1-4DDA-4427-8219-F5F0952A52AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSitePerformanceTester.DataAccess", "sitemap.DataAccess\WebSitePerformanceTester.DataAccess.csproj", "{C9E7F459-A332-47DA-87B4-9EB5B56F788B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSitePerformanceTester.DataAccess", "WebSitePerformanceTester.DataAccess\WebSitePerformanceTester.DataAccess.csproj", "{C9E7F459-A332-47DA-87B4-9EB5B56F788B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSitePerformanceTester.UnitTests", "simplemap.UnitTests\WebSitePerformanceTester.UnitTests.csproj", "{84FBA262-A740-4898-BF0E-8C578723FA78}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSitePerformanceTester.UnitTests", "WebSitePerformanceTester.UnitTests\WebSitePerformanceTester.UnitTests.csproj", "{84FBA262-A740-4898-BF0E-8C578723FA78}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

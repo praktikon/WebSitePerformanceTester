@@ -13,9 +13,8 @@ namespace WebSitePerformanceTester.Services
 {
     public class UrlService : IUrlService
     {
-        private IUoW _uow;
-        //private IHubContext _hubContext;
-        private IUrlhandler _handler;
+        private readonly IUoW _uow;
+        private readonly IUrlhandler _handler;
 
         public UrlService()
         {
@@ -23,7 +22,6 @@ namespace WebSitePerformanceTester.Services
 
         public UrlService( IUoW uow,  IUrlhandler handler){
             _uow = uow;
-            //_hubContext = hubContext;
             _handler = handler;
         }
 
@@ -32,7 +30,6 @@ namespace WebSitePerformanceTester.Services
             var url = CheckUrl(urlToCheck);
             if (url == null) return;
             var siteMapurl = GetSiteMapUrl(url);
-
             var list = GetUriList(siteMapurl);
     
             try
@@ -54,7 +51,7 @@ namespace WebSitePerformanceTester.Services
                 _handler.Domain = domain;
                 _handler.tTime = tTime;
                 _handler.ConnectionId = connectionId;
-                //await _handler.MasureAndSendResponseTimeLinksFromSiteMap_Xml(list, _uow);
+
                 if ((list is null) || list.Any())
                 {
                     await MasureAndSendResponseTimeLinksFromScraping(url);
@@ -126,7 +123,6 @@ namespace WebSitePerformanceTester.Services
             {
                 await ProccessUrl(page);
             }
-            //_handler.Done();
         }
 
 
@@ -173,7 +169,7 @@ namespace WebSitePerformanceTester.Services
             {
                 var uri = new Uri(urlToCheck);
                 var url = uri.AbsoluteUri;
-                return url;
+                return url.TrimEnd('/');
             }
             catch
             {
@@ -196,8 +192,9 @@ namespace WebSitePerformanceTester.Services
             List<Uri> d  = new List<Uri>();
             if (doc.Root.Name.LocalName == "sitemapindex")
             {
-                var c = doc.Descendants().Where(z => z.Name.LocalName == "loc")
-                    .Select(e => e.Value);
+                var c = doc.Descendants()
+                            .Where(z => z.Name.LocalName == "loc")
+                            .Select(e => e.Value);
                 foreach (var i in c)
                 {
                     XDocument u;
@@ -205,8 +202,8 @@ namespace WebSitePerformanceTester.Services
                     {
                         u = XDocument.Load(i);
                         d.AddRange(u.Descendants()
-                        .Where(dc => dc.Name.LocalName == "loc")
-                        .Select(s => new Uri(s.Value)));
+                            .Where(dc => dc.Name.LocalName == "loc")
+                            .Select(s => new Uri(s.Value)));
                     }
                     catch
                     {
@@ -216,8 +213,8 @@ namespace WebSitePerformanceTester.Services
                 return d;
             }
             return  doc.Descendants()
-                .Where(e => e.Name.LocalName == "loc")
-                .Select(e => new Uri(e.Value));
+                        .Where(e => e.Name.LocalName == "loc")
+                        .Select(e => new Uri(e.Value));
         }
 
     }

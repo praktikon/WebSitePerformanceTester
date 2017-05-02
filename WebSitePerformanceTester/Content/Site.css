@@ -24,7 +24,7 @@ textarea {
 }
 
     .ko-grid-pageLinks a {
-        padding: 0.5em;
+        padding: 0.2em;
     }
 
         .ko-grid-pageLinks a.selected {
@@ -44,4 +44,16 @@ textarea {
 }
 .status-group {
     display: none;
+}
+
+#dates {
+    display: none;
+}
+#url-input-form {
+    margin-top: 2em;
+    /*background-color: #91d584;*/
+}
+.col-centered {
+    margin: 0 auto;
+    float: none;
 }

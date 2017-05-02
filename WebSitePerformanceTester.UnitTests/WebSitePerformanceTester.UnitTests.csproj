@@ -51,7 +51,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\sitemap\WebSitePerformanceTester.csproj">
+    <ProjectReference Include="..\WebSitePerformanceTester.DataAccess\WebSitePerformanceTester.DataAccess.csproj">
+      <Project>{c9e7f459-a332-47da-87b4-9eb5b56f788b}</Project>
+      <Name>WebSitePerformanceTester.DataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WebSitePerformanceTester\WebSitePerformanceTester.csproj">
       <Project>{b5a0b4e1-4dda-4427-8219-f5f0952a52af}</Project>
       <Name>WebSitePerformanceTester</Name>
     </ProjectReference>

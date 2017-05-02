@@ -4,26 +4,15 @@
     ViewBag.Title = "History";
     //Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<h4>urls</h4>
+<br>
 @Html.DropDownListFor(x=>x.List, new SelectList(
         Model.List.Select(x => new { Value = x, Text = x }),
         "Value",
         "Text"
-    ), "select")
+    ), "select Url")
 
 <select id="dates", name="dates">
     
 </select>
-
-<div class="container">
-    <h2>History</h2>
-    
-   
-</div>
-<script>
-
-
-</script>
 
 @Html.Partial("UrlsRespnseTimeRepresentation")

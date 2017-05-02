@@ -285,8 +285,8 @@
     <Content Include="Scripts\jquery-3.1.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\sitemap.DataAccess\WebSitePerformanceTester.DataAccess.csproj">
-      <Project>{C9E7F459-A332-47DA-87B4-9EB5B56F788B}</Project>
+    <ProjectReference Include="..\WebSitePerformanceTester.DataAccess\WebSitePerformanceTester.DataAccess.csproj">
+      <Project>{c9e7f459-a332-47da-87b4-9eb5b56f788b}</Project>
       <Name>WebSitePerformanceTester.DataAccess</Name>
     </ProjectReference>
   </ItemGroup>
