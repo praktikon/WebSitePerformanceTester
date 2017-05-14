@@ -16,3 +16,16 @@
 </select>
 
 @Html.Partial("UrlsRespnseTimeRepresentation")
+
+@section Scripts{
+    <script>
+        window.applicationBaseUrl = @Html.Raw(HttpUtility.JavaScriptStringEncode(
+                                        new Uri(
+                                            new Uri(this.Context.Request.Url.GetLeftPart(UriPartial.Authority)),
+                                            Url.Content("~/")
+                                            ).ToString(), true));
+    </script>
+}
+
+
+     
