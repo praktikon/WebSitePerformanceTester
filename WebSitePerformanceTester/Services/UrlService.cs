@@ -32,40 +32,35 @@ namespace WebSitePerformanceTester.Services
             var siteMapurl = GetSiteMapUrl(url);
             var list = GetUriList(siteMapurl);
     
-            try
+  
+            Domain domain = _uow.Domains.Entities.SingleOrDefault(x => x.MainUrl.Contains(url));
+            if (domain == null)
             {
-                Domain domain = _uow.Domains.Entities.SingleOrDefault(x => x.MainUrl.Contains(url));
-                if (domain == null)
-                {
-                    domain = new Domain { MainUrl = url };
-                    _uow.Domains.Add(domain);
-                }
+                domain = new Domain { MainUrl = url };
+                _uow.Domains.Add(domain);
+            }
 
-                var tTime = new TestTime
-                {
-                    Date = DateTime.Now,
-                    Domain = domain
-                };
-                _uow.TestsTime.Add(tTime);
-                await _uow.SaveChangesAsync();
-                _handler.Domain = domain;
-                _handler.tTime = tTime;
-                _handler.ConnectionId = connectionId;
+            var tTime = new TestTime
+            {
+                Date = DateTime.Now,
+                Domain = domain
+            };
+            _uow.TestsTime.Add(tTime);
+            await _uow.SaveChangesAsync();
+            _handler.Domain = domain;
+            _handler.tTime = tTime;
+            _handler.ConnectionId = connectionId;
 
-                if ((list is null) || list.Any())
-                {
-                    await MasureAndSendResponseTimeLinksFromScraping(url);
+            if ((list is null) || list.Any())
+            {
+                await MasureAndSendResponseTimeLinksFromScraping(url);
                    
-                }
-                else
-                {
-                    await MasureAndSendResponseTimeLinksFromSiteMap_Xml(list);
-                }
             }
-            catch (Exception e)
+            else
             {
-                Console.WriteLine(e);
+                await MasureAndSendResponseTimeLinksFromSiteMap_Xml(list);
             }
+
             _handler.Done();
 
         }
@@ -109,15 +104,13 @@ namespace WebSitePerformanceTester.Services
                                 var uri1 = new Uri(hrefValue);
                                 uriHashSet.Add(uri1);
                             }
-
                         }
-
                     }
-                }
-            }
+                } // end of foreach
+            } // end of while
         }
 
-        public async Task MasureAndSendResponseTimeLinksFromSiteMap_Xml(IEnumerable<Uri> list)
+        private async Task MasureAndSendResponseTimeLinksFromSiteMap_Xml(IEnumerable<Uri> list)
         {
             foreach (var page in list)
             {
@@ -126,7 +119,7 @@ namespace WebSitePerformanceTester.Services
         }
 
 
-        public async Task ProccessUrl(Uri page)
+        private async Task ProccessUrl(Uri page)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(page);
             Stopwatch timer = new Stopwatch();
@@ -168,8 +161,8 @@ namespace WebSitePerformanceTester.Services
             try
             {
                 var uri = new Uri(urlToCheck);
-                var url = uri.AbsoluteUri;
-                return url.TrimEnd('/');
+                var uriHost = uri.Scheme + Uri.SchemeDelimiter + uri.Host;
+                return uriHost;
             }
             catch
             {
@@ -178,6 +171,35 @@ namespace WebSitePerformanceTester.Services
         }
 
         public IEnumerable<Uri> GetUriList(string url)
+        {
+            var siteMapDoc = LoadDocument(url);
+            if (siteMapDoc == null) return null;
+
+            List<Uri> uriList = new List<Uri>();
+
+            if (siteMapDoc.Root.Name.LocalName == "sitemapindex")
+            {
+                var pageList = siteMapDoc.Descendants()
+                            .Where(z => z.Name.LocalName == "loc")
+                            .Select(e => e.Value);
+
+                foreach (var page in pageList)
+                {
+                   
+                    var siteMapIndexItem = LoadDocument(page);
+                    if(siteMapIndexItem == null) continue;
+                    uriList.AddRange(siteMapIndexItem.Descendants()
+                            .Where(dc => dc.Name.LocalName == "loc")
+                            .Select(s => new Uri(s.Value)));
+                }
+                return uriList;
+            }
+            return  siteMapDoc.Descendants()
+                        .Where(e => e.Name.LocalName == "loc")
+                        .Select(e => new Uri(e.Value));
+        }
+
+        public XDocument LoadDocument(string url)
         {
             XDocument doc = null;
             try
@@ -188,33 +210,7 @@ namespace WebSitePerformanceTester.Services
             {
                 return null;
             }
-
-            List<Uri> d  = new List<Uri>();
-            if (doc.Root.Name.LocalName == "sitemapindex")
-            {
-                var c = doc.Descendants()
-                            .Where(z => z.Name.LocalName == "loc")
-                            .Select(e => e.Value);
-                foreach (var i in c)
-                {
-                    XDocument u;
-                    try
-                    {
-                        u = XDocument.Load(i);
-                        d.AddRange(u.Descendants()
-                            .Where(dc => dc.Name.LocalName == "loc")
-                            .Select(s => new Uri(s.Value)));
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
-                }
-                return d;
-            }
-            return  doc.Descendants()
-                        .Where(e => e.Name.LocalName == "loc")
-                        .Select(e => new Uri(e.Value));
+            return doc;
         }
 
     }
