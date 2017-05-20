@@ -18,9 +18,8 @@ namespace simplemap.UnitTests
         [Test]
         public void CheckUrl_ShouldReturn_Url()
         {
-            
             var url = _service.CheckUrl("https://www.asp.net/");
-            Assert.AreEqual("https://www.asp.net/", url);
+            Assert.AreEqual("https://www.asp.net", url);
         }
         [Test]
         public void CheckUrl_ShouldReturn_null()
@@ -50,6 +49,6 @@ namespace simplemap.UnitTests
             Assert.AreEqual(1842, list.Count());
         }
         #endregion
-        //public void AddUrl_SholdReturn_
+        
     }
 }
