@@ -25,8 +25,7 @@ namespace WebSitePerformanceTester.Services
             var list = _uow.Domains.Entities.Select(x => x.MainUrl).ToList();
             foreach (var u in list)
             {
-                var urlHistory = new HistoryDto();
-                urlHistory.Url = u;
+                var urlHistory = new HistoryDto {Url = u};
                 var dates = _uow.TestsTime.Entities
                     .Where(c=>c.Domain.MainUrl.Contains(u)).Select(x=>x.Date).ToList();
                 urlHistory.dates = dates;

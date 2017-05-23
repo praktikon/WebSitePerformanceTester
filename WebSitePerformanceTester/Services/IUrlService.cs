@@ -8,7 +8,7 @@ namespace WebSitePerformanceTester.Services
 {
     public interface IUrlService
     {
-        Task addUrl(string urlToCheck, string connectionId);
+        Task AddUrl(string urlToCheck, string connectionId);
 
         //Task MasureAndSendResponseTimeLinksFromSiteMap_Xml(IEnumerable<Uri> list,  
         //    Domain domain , TestTime tTime, IHubContext hubContext, string connectionId);
