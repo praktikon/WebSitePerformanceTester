@@ -17,7 +17,7 @@ namespace WebSitePerformanceTester.Hub
         {
             string connectionId = Context.ConnectionId;
      
-            await _service.addUrl(strUrl, connectionId);
+            await _service.AddUrl(strUrl, connectionId);
 
             //Clients.Caller.Item(dto.page, dto.timeTaken);
         }

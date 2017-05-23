@@ -25,27 +25,16 @@ namespace WebSitePerformanceTester.Services
             _handler = handler;
         }
 
-        public async Task addUrl(string urlToCheck, string connectionId)
+        public async Task AddUrl(string urlToCheck, string connectionId)
         {
             var url = CheckUrl(urlToCheck);
             if (url == null) return;
             var siteMapurl = GetSiteMapUrl(url);
             var list = GetUriList(siteMapurl);
-    
-  
-            Domain domain = _uow.Domains.Entities.SingleOrDefault(x => x.MainUrl.Contains(url));
-            if (domain == null)
-            {
-                domain = new Domain { MainUrl = url };
-                _uow.Domains.Add(domain);
-            }
 
-            var tTime = new TestTime
-            {
-                Date = DateTime.Now,
-                Domain = domain
-            };
-            _uow.TestsTime.Add(tTime);
+            var domain = GetDomain(url);
+            var tTime = GeTestTime(domain);
+  
             await _uow.SaveChangesAsync();
             _handler.Domain = domain;
             _handler.tTime = tTime;
@@ -65,7 +54,27 @@ namespace WebSitePerformanceTester.Services
 
         }
 
+        private Domain GetDomain(string url)
+        {
+            Domain domain = _uow.Domains.Entities.SingleOrDefault(x => x.MainUrl.Contains(url));
+            if (domain == null)
+            {
+                domain = new Domain { MainUrl = url };
+                _uow.Domains.Add(domain);
+            }
+            return domain;
+        }
 
+        private TestTime GeTestTime(Domain domain)
+        {
+            var tTime = new TestTime
+            {
+                Date = DateTime.Now,
+                Domain = domain
+            };
+            _uow.TestsTime.Add(tTime);
+            return tTime;
+        }
         public async Task MasureAndSendResponseTimeLinksFromScraping(string baseUrl)
         {
             HashSet<Uri> uries = new HashSet<Uri>();
@@ -97,7 +106,6 @@ namespace WebSitePerformanceTester.Services
                             if (!hrefValue.StartsWith(baseUrl))
                             {
                                 uriHashSet.Add(uri);
-
                             }
                             else
                             {
