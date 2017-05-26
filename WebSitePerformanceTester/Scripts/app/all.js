@@ -267,11 +267,12 @@ function onDates(dates) {
     $("#dates").show();
     $.each(dates,
         function (i, item) {
+            var date = item.replace(/\.\d+/, '');
             $('#dates').append($('<option>',
-                {
-                    value: item,
-                    text: item
-                }));
+            {
+                value: item,
+                text: date
+        }));
         });
 }
 
