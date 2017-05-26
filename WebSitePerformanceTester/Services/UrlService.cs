@@ -43,15 +43,12 @@ namespace WebSitePerformanceTester.Services
             if ((list is null) || list.Any())
             {
                 await MasureAndSendResponseTimeLinksFromScraping(url);
-                   
             }
             else
             {
                 await MasureAndSendResponseTimeLinksFromSiteMap_Xml(list);
             }
-
             _handler.Done();
-
         }
 
         private Domain GetDomain(string url)
@@ -75,6 +72,7 @@ namespace WebSitePerformanceTester.Services
             _uow.TestsTime.Add(tTime);
             return tTime;
         }
+
         public async Task MasureAndSendResponseTimeLinksFromScraping(string baseUrl)
         {
             HashSet<Uri> uries = new HashSet<Uri>();
@@ -125,7 +123,6 @@ namespace WebSitePerformanceTester.Services
                 await ProccessUrl(page);
             }
         }
-
 
         private async Task ProccessUrl(Uri page)
         {
@@ -220,6 +217,5 @@ namespace WebSitePerformanceTester.Services
             }
             return doc;
         }
-
     }
 }
