@@ -23,8 +23,8 @@ namespace WebSitePerformanceTester.DataAccess.context
                 .HasRequired(c => c.Domain)
                 .WithMany(x=>x.TestsTime);
 
-            modelBuilder.Entity<ResponseTime>()
-                .HasRequired(c => c.Domain);
+            //modelBuilder.Entity<ResponseTime>()
+            //    .HasRequired(c => c.Domain);
 
             modelBuilder.Entity<ResponseTime>()
                 .HasRequired(c => c.TestsTime);
