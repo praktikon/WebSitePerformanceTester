@@ -137,7 +137,6 @@ namespace WebSitePerformanceTester.Services
                     long timeTaken = timer.ElapsedMilliseconds;
                     var responseTime = new ResponseTime
                     {
-                        //Domain = _handler.Domain,
                         TestsTime = _handler.tTime,
                         Url = page.ToString(),
                         TimeMs = timeTaken
