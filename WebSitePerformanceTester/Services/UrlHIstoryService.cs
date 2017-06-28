@@ -36,16 +36,14 @@ namespace WebSitePerformanceTester.Services
 
         public async Task<List<UrlDateResult>> GetResultsForUrlByDateAsync(string url, string date)
         {
-
             DateTime dt = Convert.ToDateTime(date);
             List<UrlDateResult> list = await _uow.ResponsesTime.Entities.Where(
-                x => x.Domain.MainUrl.Contains(url)
+                x => x.TestsTime.Domain.MainUrl.Contains(url)
                 && SqlFunctions.DateDiff("second", x.TestsTime.Date, dt) == 0)
-                .Select(d => new UrlDateResult (){ Url = d.Url,Times = d.TimeMs})
-                .OrderByDescending(o=>o.Times)
+                .Select(d => new UrlDateResult() { Url = d.Url, Times = d.TimeMs })
+                .OrderByDescending(o => o.Times)
                 .ToListAsync();
             return list;
-            
         }
 
         public async Task<List<string>> GetURls()
@@ -69,7 +67,6 @@ namespace WebSitePerformanceTester.Services
     public class UrlDateResult
     {
         public string Url { get; set; }
-       
         public long Times { get; set; }
     }
 }
